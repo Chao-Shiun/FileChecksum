@@ -46,7 +46,6 @@ namespace FileChecksum
             IDBTool dbTool = new LiteDBTool();
             foreach (var item in fileDic)
             {
-                var test = dbTool.GetData<FileModifyInfo>(x => x.FileName == item.Key);
                 if (!dbTool.Exists<FileModifyInfo>(x => x.FileName == item.Key))
                 {
                     deleteKey.Add(item.Key);

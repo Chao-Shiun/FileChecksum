@@ -30,7 +30,7 @@ namespace UnitTestExample
         {
             using var db = GetDB();
             var col = db.GetCollection<T>(nameof(T));
-            var isExists = col.Query().Where(predicate).Exists();
+            var isExists = col.Query().Where(predicate).ToList().Any();
             return isExists;
         }
 
