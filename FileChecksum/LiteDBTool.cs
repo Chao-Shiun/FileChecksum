@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,7 +10,7 @@ namespace UnitTestExample
     public interface IDBTool
     {
         bool Exists<T>(Expression<Func<T, bool>> predicate);
-        T GetData<T>(Expression<Func<T, bool>> predicate);
+        List<T> GetData<T>(Expression<Func<T, bool>> predicate);
         void Insert<T>(T data);
         bool Delete<T>(int id);
         int DeleteAll<T>();
@@ -21,7 +22,7 @@ namespace UnitTestExample
         {
             var environment = Environment.CurrentDirectory;
             string projectDirectory = Directory.GetParent(environment).Parent?.FullName;
-            var db = new LiteDatabase(projectDirectory + @"\DB.db");
+            var db = new LiteDatabase(new ConnectionString(projectDirectory +@"\Debug\netcoreapp3.1"+ @"\DB.db"));
             return db;
         }
 
@@ -33,11 +34,11 @@ namespace UnitTestExample
             return isExists;
         }
 
-        public T GetData<T>(Expression<Func<T, bool>> predicate)
+        public List<T> GetData<T>(Expression<Func<T, bool>> predicate)
         {
             using var db = GetDB();
             var col = db.GetCollection<T>(typeof(T).Name);
-            var result = col.Query().Where(predicate).ToList().SingleOrDefault();
+            var result = col.Query().Where(predicate).ToList();
             return result;
         }
 
