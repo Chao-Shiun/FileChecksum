@@ -15,10 +15,6 @@ namespace FileChecksum
                 .Build();
             var fileList = config.GetSection("FilePath").AsEnumerable().ToList();
             fileList.RemoveAt(0);
-            foreach (var item in fileList)
-            {
-                Console.WriteLine(CalculateMD5(item.Value));
-            }
 
             var fileMD5Dic = fileList.Select(x => CalculateMD5(x.Value)).
                 ToDictionary(x => x.fileName, x => x.md5);
