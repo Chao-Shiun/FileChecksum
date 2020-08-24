@@ -12,17 +12,18 @@ namespace UnitTestExample
         bool Exists<T>(Expression<Func<T, bool>> predicate);
         List<T> GetData<T>(Expression<Func<T, bool>> predicate);
         void Insert<T>(T data);
+        bool Update<T>(T data);
         bool Delete<T>(int id);
         int DeleteAll<T>();
     }
 
     public class LiteDBTool : IDBTool
     {
-        private LiteDatabase GetDB()
+        private LiteDatabase GetDB(BsonMapper bsonMapper = null)
         {
             var environment = Environment.CurrentDirectory;
             string projectDirectory = Directory.GetParent(environment).Parent?.FullName;
-            var db = new LiteDatabase(new ConnectionString(projectDirectory +@"\Debug\netcoreapp3.1"+ @"\DB.db"));
+            var db = new LiteDatabase(new ConnectionString(projectDirectory + @"\Debug\netcoreapp3.1" + @"\DB.db"), bsonMapper);
             return db;
         }
 
@@ -46,6 +47,12 @@ namespace UnitTestExample
         {
             using var db = GetDB();
             _ = db.GetCollection<T>().Insert(data);
+        }
+
+        public bool Update<T>(T data)
+        {
+            using var db = GetDB();
+            return db.GetCollection<T>().Update(data);
         }
 
         public bool Delete<T>(int id)

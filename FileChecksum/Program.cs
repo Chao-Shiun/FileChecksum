@@ -42,11 +42,12 @@ namespace FileChecksum
 
         public static void CheckFileExists(Dictionary<string, string> fileDic)
         {
+            Console.ForegroundColor = ConsoleColor.White;
             List<string> deleteKey = new List<string>();
             IDBTool dbTool = new LiteDBTool();
             foreach (var item in fileDic)
             {
-                if (!dbTool.Exists<FileModifyInfo>(x => x.FileName == item.Key))
+                if (!dbTool.GetData<FileModifyInfo>(x => x.FileName == item.Key).Any())
                 {
                     deleteKey.Add(item.Key);
                     dbTool.Insert(new FileModifyInfo
@@ -55,6 +56,7 @@ namespace FileChecksum
                         MD5 = item.Value,
                         CreateTime = DateTime.Now
                     });
+                    Console.WriteLine($"新增{item.Key}紀錄 MD5為{item.Value}");
                 }
             }
             deleteKey.ForEach(x => fileDic.Remove(x));
@@ -70,8 +72,24 @@ namespace FileChecksum
             IDBTool dbTool = new LiteDBTool();
             foreach (var item in fileDic)
             {
-                var fileHistoryList = dbTool.GetData<FileModifyInfo>(x => x.FileName == item.Key);
-
+                var fileInfo = dbTool.GetData<FileModifyInfo>(x => x.FileName == item.Key).SingleOrDefault();
+                if (fileInfo.MD5 != item.Value)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"{item.Key}檔案異動\n本次MD5：{item.Value}\n上次MD5：{fileInfo.MD5}");
+                    dbTool = new LiteDBTool();
+                    fileInfo.MD5 = item.Value;
+                    if (dbTool.Update(fileInfo))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"{item.Key} 已更新MD5 {item.Value}");
+                    }
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"{item.Key}檔案無異動\n本次MD5：{item.Value}\n上次MD5：{fileInfo.MD5}");
+                }
             }
         }
     }
