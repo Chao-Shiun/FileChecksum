@@ -77,7 +77,6 @@ namespace FileChecksum
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"{item.Key}檔案異動\n本次MD5：{item.Value}\n上次MD5：{fileInfo.MD5}");
-                    dbTool = new LiteDBTool();
                     fileInfo.MD5 = item.Value;
                     if (dbTool.Update(fileInfo))
                     {
